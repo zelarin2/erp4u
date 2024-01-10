@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Actl;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
 
 use App\Models\Product;
 use App\Models\Family;
@@ -20,27 +22,70 @@ class ProductController extends Controller
         $products = Product::latest()->get();
         return view('backend.product.product_all', compact('products'));
     }
-    public function ProductAdd(){
+    public function ProductAdd(Request $request){
+        $user = Auth::user();
         $families = Family::all();
         $unitMeasures = UnitMeasure::all();
         $taxRates = TaxRate::all();
-        return view('backend.product.product_add', compact('families','unitMeasures','taxRates'));
+        $search = $request->input('search');
+        $response = Http::get("https://www.thecocktaildb.com/api/json/v1/1/search.php?s=$search");
+        $response = json_decode($response->body(), true);
+        $ingredients = [];
+        $drinks = [];
+        $drinks  = $response['drinks'][0];
+        $strIngredient="";
+
+        if ($response !== null) {
+            for ($i = 1; $i <= 15; $i++) {    
+                $ingredient = $drinks['strIngredient' . $i];
+                $measurements = $drinks['strMeasure' . $i];
+                $strIngredient = $strIngredient.', '.$drinks['strIngredient' . $i];
+                if (
+                    $ingredient !== null &&
+                    $measurements !== null
+                ) {
+                    $ingredients[] = [
+                        'strIngredient' => $strIngredient,
+                        'ingredient' => $ingredient,
+                        'measurements' => $measurements
+                    ];
+                }
+            }
+
+        if ($response['drinks'] !== null) {
+            return view('backend.product.product_add', [
+                'user' => $user,
+                'drink' => $drinks,
+                'ingredients' => $ingredients,
+                'response' => $response,
+                'families' => $families,
+                'unitMeasures' => $unitMeasures,
+                'taxRates' => $taxRates,
+                'strIngredient' => $strIngredient,
+            ]);
+        }
     }
+        return redirect('/product_add');
+        
+        /*return view('backend.product.product_add', compact('families','unitMeasures','taxRates'));*/
+    }
+    
     public function ProductStore(Request $request){
-        $imageFile = $request->file('profile_image');
+        /*$imageFile = $request->file('profile_image');
         $transformName = hexdec(uniqid()).".".$imageFile->getClientOriginalExtension();
         Image::make($imageFile)->resize(200,200)->save('upload/product/'.$transformName);
-        $save_url = 'upload/product/'.$transformName;
+        $save_url = 'upload/product/'.$transformName;*/
         try{
             Product::insert([
                 'code' => $request->code,
-                'description' => $request->description,
+                'description' => $request->strIngredients,
                 'family' => $request->product_family,
                 'unit' => $request->product_unit,
                 'taxRateCode' => $request->taxRateCode_Product,
-                'image' => $save_url,
+                'image' => $request->strDrinkThumb,
                 'created_by' => Auth::user()->id,
                 'created_at' => Carbon::now(),
+                'name' => $request->strDrink
             ]);
             $notification = array(
                 'message' => 'Product Inserted Successfully.',
@@ -49,10 +94,11 @@ class ProductController extends Controller
             return redirect()->route('product.all')->with($notification);
         } catch(\Exception $e) {
             $notification = array(
+                //'message' => $e->getMessage(),
                 'message' => 'Product Inserted Insuccessfully.',
                 'alert-type' => 'error',
             );
-            unlink($save_url);
+            //unlink($save_url);
             return redirect()->route('product.all')->with($notification);
         }
     }

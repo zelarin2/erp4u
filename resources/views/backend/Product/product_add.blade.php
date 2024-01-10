@@ -13,86 +13,94 @@
 
             <h4 class="card-title">Add Product</h4><br><br>
             
-
-            <form method="post" action="{{ route('product.store') }}" id="myForm" enctype="multipart/form-data">
+                <form class="search-form" action="{{ route('product.add') }}" method="GET">
+                    <div class="search-container">
+                        <div>
+                            <label hidden for="search" class="col-sm2 col-form-label">Search for drinks</label>
+                        </div>
+                        <input name="search" id="search" type="text" placeholder="Search for a drink" />
+                        <button type="submit" class="btn btn-info waves-effect waves-light">Search</button>
+                    </div>
+                </form><!-- end row -->
+                <form method="post" action="{{ route('product.store') }}" id="myForm" enctype="multipart/form-data">
                 @csrf
 
+                <div class="recipe-img-container">
+                    <input type="hidden" id="strDrink" class="title" name="strDrink" value="{{ $drink['strDrink'] }}">
+                    <h1>{{ $drink['strDrink'] }}</h1>
+                </div>
+
+                <div class="recipe-container">
+                    <div class="ingredients">
+                        <h2> Ingredients</h2>
+                        @foreach ($ingredients as $ingredient)
+                        <ul>
+                            <li>{{ $ingredient['ingredient'] }}</li>
+                        </ul>
+                        <p>{{ $ingredient['measurements'] }} </p>
+                        @endforeach
+                        <input type="hidden" id="strIngredients" name="strIngredients" value="{{$strIngredient}}">
+                    </div>
+                <div class="ingredients">
+                    <h3>Instructions</h3>
+                        <input type="hidden" id ="strInstructions" name="strInstructions" value ="{{ $drink['strInstructions'] }}">
+                        <p>{{ $drink['strInstructions'] }}</p>
+                    </div>
+                </div>
+                
                 <div class="row mb-3">
                 <label for="example-text-input" class="col-sm-2 col-form-label">Product Code</label>
                 <div class="form-group col-sm-10">
                     <input name="code" class="form-control" type="text">
                 </div>
-            </div>
-            <!-- end row -->
 
-            <div class="row mb-3">
-                <label for="example-text-input" class="col-sm-2 col-form-label">Description</label>
-                <div class="form-group col-sm-10">
-                    <input name="description" class="form-control" type="text">
+                <div class="form-group row mb-3">
+                <label for="example-text-input" class="col-sm-1 col-form-label">Family</label>
+                <div class="form-group col-sm-2">
+                        <select id="product_family" name="product_family" class="form-select select2" aria-label="Default select example">
+                        <option selected=""></option>
+                            @foreach($families as $prod)
+                                <option iOption = "" value="{{ $prod-> family }}">{{ $prod-> family }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
+                <!-- end row -->
+
+                <label for="example-text-input" class="col-sm-1 col-form-label">Unit Measure</label>
+                <div class="form-group col-sm-2">
+                        <select id="product_unit" name="product_unit" class="form-select select2" aria-label="Default select example">
+                        <option selected=""></option>
+                            @foreach($unitMeasures as $prod)
+                                <option iOption = "" value="{{ $prod-> unit}}">{{ $prod-> unit }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                <!-- end row -->
+
+
+                <label for="example-text-input" class="col-sm-1 col-form-label">Tax Rate</label>
+                <div class="form-group col-sm-1">
+                        <select id="product_taxRateCode" name="taxRateCode_Product" class="form-select select2" aria-label="Default select example">
+                        <option selected=""></option>
+                            @foreach($taxRates as $prod)
+                                <option iTaxDescription = "{{ $prod->descriptionTaxRate }} - {{ $prod->taxRate }}% "
+                            value="{{$prod->taxRateCode}}">{{$prod->taxRateCode}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <label for="example-text-imput" id="lbTaxDescription" name="lbTaxDescription" class="col-sm-4 col-form-label"></label>
                 </div>
-            </div>
-            <!-- end row -->
+                <!-- end row -->
 
-
-            <div class="form-group row mb-3">
-            <label for="example-text-input" class="col-sm-1 col-form-label">Family</label>
-            <div class="form-group col-sm-2">
-                    <select id="product_family" name="product_family" class="form-select select2" aria-label="Default select example">
-                    <option selected=""></option>
-                        @foreach($families as $prod)
-                            <option iOption = "" value="{{ $prod-> family }}">{{ $prod-> family }}</option>
-                        @endforeach
-                    </select>
+                <div class="form-group row mb-3">
+                    <img class="recipe-img" style="width: 400px; height: 400px" src="{{ $drink['strDrinkThumb'] }}" alt="Photo of the drink"/>
+                    <input type="hidden" id="strDrinkThumb" name="strDrinkThumb" value="{{ $drink['strDrinkThumb'] }}"/>
                 </div>
+                <!-- end row -->
 
-
-            <!-- end row -->
-
-            <label for="example-text-input" class="col-sm-1 col-form-label">Unit Measure</label>
-            <div class="form-group col-sm-2">
-                    <select id="product_unit" name="product_unit" class="form-select select2" aria-label="Default select example">
-                    <option selected=""></option>
-                        @foreach($unitMeasures as $prod)
-                            <option iOption = "" value="{{ $prod-> unit}}">{{ $prod-> unit }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            <!-- end row -->
-
-
-            <label for="example-text-input" class="col-sm-1 col-form-label">Tax Rate</label>
-            <div class="form-group col-sm-1">
-                    <select id="product_taxRateCode" name="taxRateCode_Product" class="form-select select2" aria-label="Default select example">
-                    <option selected=""></option>
-                        @foreach($taxRates as $prod)
-                            <option iTaxDescription = "{{ $prod->descriptionTaxRate }} - {{ $prod->taxRate }}% "
-                         value="{{$prod->taxRateCode}}">{{$prod->taxRateCode}}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <label for="example-text-imput" id="lbTaxDescription" name="lbTaxDescription" class="col-sm-4 col-form-label"></label>
-            </div>
-            <!-- end row -->
-
-            <div class="form-group row mb-3">
-                <div class="col-sm-11">
-       <input name="profile_image" class="form-control" type="file"  id="image">
-                </div>
-            </div>
-            <!-- end row -->
-
-            <div class="form-group row mb-3">
-                 <label for="example-text-input" class="col-sm-2 col-form-label">  </label>
-                <div class="col-sm-11">
-                    <img id="showImage" class="rounded avatar-lg" 
-                    src="{{ (!empty($editData->profile_image))? 
-                        url('upload/admin_images/'.$editData->profile_image):
-                        url('upload/no_image.jpg') }}" alt="Card image cap">
-                </div>
-            </div>
-            <!-- end row -->
-
-                <input type="submit" class="btn btn-info waves-effect waves-light" value="Add Product">
+                    <input type="submit" class="btn btn-info waves-effect waves-light" value="Add Product">
             </form>
         </div>
     </div>

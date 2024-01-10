@@ -10,6 +10,7 @@ use App\Http\Controllers\Actl\UnitMeasureController;
 use App\Http\Controllers\Actl\TaxRateController;
 use App\Http\Controllers\Actl\ProductController;
 use App\Http\Controllers\Actl\CartController;
+use App\Http\Controllers\CocktailController;
 
 
 
@@ -106,6 +107,11 @@ Route::controller(CartController::class)->group(function(){
     Route::post('/cart/store','CartStore')->name('cart.store');
     Route::get('/cart/delete/{id}','CartDelete')->name('cart.delete');
 });
+Route::get('/search', CocktailController::class)->middleware('auth');
+
+
+
+
 /*
 // Application All Route
 Route::controller(PostalCodeController::class)->group(function(){
